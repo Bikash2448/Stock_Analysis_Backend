@@ -1,8 +1,6 @@
 import { googleClient } from "../config/google.config.js";
 import otpModel from "../models/otp.model.js";
 import { User } from "../models/user.model.js";
-import { ApiError } from "../utills/ApiError.js";
-import { ApiResponse } from "../utills/ApiResponse.js";
 import { sendOtpEmail, sendSmsOtp } from "../utills/sendSMS_otp.js";
 
 
@@ -86,7 +84,6 @@ export const sendOtp = async (req, res) => {
   const existingUser = await User.findOne({$or:[{mobile},{email}]});
 
   if(existingUser){
-      // return new ApiResponse(401,"Mobile No or Email already Used");
       return res.json({
         success: false,
         message: "Mobile No or Email already Used",

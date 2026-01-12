@@ -3,13 +3,14 @@ import { mongo_connection } from "./src/utills/mongodbConnection.js";
 import dotenv from "dotenv";
 import cors from "cors";
 import authRoutes from "./src/routers/authRoute.js"
+import { errorHandler } from "./src/middleware/error.middleware.js";
 
 
 dotenv.config();
 const app = express();
 app.use(express.json())
 app.use(cors({
-    origin:"*",
+    origin:"http://localhost:5173",
     credentials:true
 }))
 
@@ -19,8 +20,16 @@ app.get("/",(req,res)=>{
     res.send({"value":"bikash"})
 })
 app.use("/auth", authRoutes);
+app.get("/checkcookie", (req, res) => {
+  res.json(req.cookies);
+});
+app.use(errorHandler);
 
 app.listen(PORT,()=>{
     mongo_connection();
     console.log(`server start port ${PORT}`)
 })
+
+
+// Bikash@1223
+// Bikash2448
