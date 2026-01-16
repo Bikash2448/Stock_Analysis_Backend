@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import authRoutes from "./src/routers/authRoute.js"
 import { errorHandler } from "./src/middleware/error.middleware.js";
+import { userRouter } from "./src/routers/userRoute.js";
 
 
 dotenv.config();
@@ -20,9 +21,8 @@ app.get("/",(req,res)=>{
     res.send({"value":"bikash"})
 })
 app.use("/auth", authRoutes);
-app.get("/checkcookie", (req, res) => {
-  res.json(req.cookies);
-});
+app.use("/user",userRouter);
+
 app.use(errorHandler);
 
 app.listen(PORT,()=>{

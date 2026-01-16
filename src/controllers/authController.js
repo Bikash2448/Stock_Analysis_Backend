@@ -1,10 +1,22 @@
 import { googleClient } from "../config/google.config.js";
 import otpModel from "../models/otp.model.js";
 import { User } from "../models/user.model.js";
+import { ApiError } from "../utills/ApiError.js";
 import { sendOtpEmail, sendSmsOtp } from "../utills/sendSMS_otp.js";
 
 
 const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString();
+// const normalizeIdentifier = (identifier) => {
+//   identifier = identifier.trim();
+
+//   const isEmail = identifier.includes("@");
+
+//   return {
+//     email: isEmail ? identifier.toLowerCase() : null,
+//     mobile: isEmail ? null : identifier,
+//     type: isEmail ? "email" : "mobile",
+//   };
+// };
 
 export const googleLogin = async (req, res) => {
   try {
@@ -175,4 +187,93 @@ export const verifyOtp = async (req, res) => {
       message: "Internal server error",
     });
   }
+};
+
+
+export const forgetPasswordOTP = async (req, res) => {
+
+  const { email } = req.body;
+
+  if (!email) {
+    throw new ApiError(400, "Email is required");
+  }
+
+  const existingUser = await User.findOne( {email});
+
+  if (!existingUser) {
+    throw new ApiError(401, "User not found");
+  }
+
+  const otp = generateOtp();
+  const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
+
+  console.log("otp",otp)
+  await otpModel.findOneAndUpdate({ email },
+    {
+      email,
+      otp: String(otp),
+      expiresAt,
+      verified: false,
+    },
+    { upsert: true, new: true }
+  );
+  await sendOtpEmail(email, otp);
+
+  res.status(200).json({
+    success: true,
+    message: "OTP sent successfully",
+  });
+};
+
+
+
+export const verifyForgetPasswordOTP = async (req, res) => {
+  const { email, otp } = req.body;
+
+  const record = await otpModel.findOne({email,verified: false}).sort({ createdAt: -1 });
+
+  if (!record) {
+    throw new ApiError(400, "OTP not found");
+  }
+
+  if (record.expiresAt < Date.now()) {
+    await otpModel.deleteOne({ _id: record._id });
+    throw new ApiError(400, "OTP expired");
+  }
+  console.log("recodeotp",record.otp);
+  console.log("otp",otp);
+
+  if (record.otp !== otp) {
+    throw new ApiError(400, "Invalid OTP");
+  }
+
+  record.verified = true;
+  await record.save();
+
+  res.json({
+    success: true,
+    message: "OTP verified",
+  });
+};
+
+
+
+export const resetPassword = async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  const otpRecord = await otpModel.findOne({email,verified: true});
+
+  if (!otpRecord || !otpRecord.verified) {
+    throw new ApiError(403, "OTP verification required");
+  }
+
+  const user = await User.findOne({email});
+
+  user.password = newPassword;
+  await user.save();
+
+  res.json({
+    success: true,
+    message: "Password reset successful",
+  });
 };

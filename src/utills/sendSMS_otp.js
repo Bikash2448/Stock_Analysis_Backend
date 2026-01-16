@@ -41,7 +41,7 @@ const transporter = nodemailer.createTransport({
 
 export const sendOtpEmail = async (toEmail, otp) => {
   await transporter.sendMail({
-    from: `"Bikash Stock Algo" <${process.env.GMAIL_USER}>`,
+    from: `"Nandi Stock Algo" <${process.env.GMAIL_USER}>`,
     to: toEmail,
     subject: "Your One-Time Password (OTP)",
     html: `
