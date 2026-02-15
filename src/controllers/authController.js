@@ -117,7 +117,7 @@ export const sendOtp = async (req, res) => {
     { upsert: true, new: true }    // upsert: true => If record not found → create new
   );
 
-  // 🔔 SEND SMS
+
   // await sendSmsOtp(mobile, otp);
   await sendOtpEmail(email,otp);
 
@@ -133,7 +133,7 @@ export const sendOtp = async (req, res) => {
 export const verifyOtp = async (req, res) => {
   try {
     const { email, mobile, otp } = req.body;
-    console.log("em-mo-otp",email,otp,mobile)
+    // console.log("em-mo-otp",email,otp,mobile)
 
     if (!email || !mobile || !otp) {
       return res.status(400).json({
@@ -240,8 +240,8 @@ export const verifyForgetPasswordOTP = async (req, res) => {
     await otpModel.deleteOne({ _id: record._id });
     throw new ApiError(400, "OTP expired");
   }
-  console.log("recodeotp",record.otp);
-  console.log("otp",otp);
+  // console.log("recodeotp",record.otp);
+  // console.log("otp",otp);
 
   if (record.otp !== otp) {
     throw new ApiError(400, "Invalid OTP");

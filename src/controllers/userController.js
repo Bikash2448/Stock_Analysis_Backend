@@ -22,7 +22,7 @@ const generateAccessAndRefreshToken = async(userid)=>{
         await user.save({ validateBeforeSave: false })
         return {accesstoken,refreshtoken};
     } catch (error) {
-        new ApiError(500,"Something went wrong in server side",error)
+        throw new ApiError(500,"Something went wrong in server side",error)
     }
 }
 
@@ -78,8 +78,8 @@ export const loginUser = asyncHandler(async(req,res)=>{
 
     // console.log("code here",user._id)
     const {accesstoken,refreshtoken} = await generateAccessAndRefreshToken(user._id);
-    console.log("accesstoken",accesstoken);
-    console.log("refreshtoken",refreshtoken);
+    // console.log("accesstoken",accesstoken);
+    // console.log("refreshtoken",refreshtoken);
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
     
 
