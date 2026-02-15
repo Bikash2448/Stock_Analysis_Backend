@@ -20,8 +20,8 @@ const PORT = process.env.PORT || 5000;
 app.get("/",(req,res)=>{
     res.send({"value":"bikash"})
 })
-app.use("/auth", authRoutes);
-app.use("/user",userRouter);
+app.use("/api/auth", authRoutes);
+app.use("/api/user",userRouter);
 
 app.use(errorHandler);
 
